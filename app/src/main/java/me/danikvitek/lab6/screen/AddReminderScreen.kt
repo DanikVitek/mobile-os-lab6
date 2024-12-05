@@ -291,7 +291,6 @@ private enum class ShowDateTimePicker {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TimePickerDialog(
-    title: String = "Select Time",
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     content: @Composable () -> Unit,
@@ -320,7 +319,7 @@ private fun TimePickerDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 20.dp),
-                    text = title,
+                    text = stringResource(R.string.select_time),
                     style = MaterialTheme.typography.labelMedium
                 )
                 content()
@@ -329,8 +328,8 @@ private fun TimePickerDialog(
                         .height(40.dp)
                         .fillMaxWidth()
                 ) {
-                    TextButton(onClick = onDismiss) { Text("Cancel") }
-                    TextButton(onClick = onConfirm) { Text("OK") }
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                    TextButton(onClick = onConfirm) { Text(stringResource(R.string.ok)) }
                 }
             }
         }

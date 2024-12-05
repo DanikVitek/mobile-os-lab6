@@ -4,35 +4,51 @@ import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import me.danikvitek.lab6.data.dao.ReminderDao
 import javax.inject.Inject
 
-class BootReceiver @Inject constructor(
-    private val reminderDao: ReminderDao,
-) : BroadcastReceiver() {
+@AndroidEntryPoint
+class BootReceiver : BroadcastReceiver() {
+    @Inject
+    lateinit var reminderDao: ReminderDao
+
     override fun onReceive(context: Context, intent: Intent) {
+        Log.d(BootReceiver::class.simpleName, "onReceive")
+
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
+
+        Log.i(BootReceiver::class.simpleName, "ACTION_BOOT_COMPLETED")
 
         val alarmManager = context.getSystemService(AlarmManager::class.java)
 
-        TODO("Fetch reminders from database and schedule them")
-        val id = intent.getLongExtra(AlarmReceiver.EXTRA_ID, 0)
-        val title = intent.getStringExtra(AlarmReceiver.EXTRA_TITLE)!!
-        val text = intent.getStringExtra(AlarmReceiver.EXTRA_TEXT)!!
-        val timestamp = intent.getLongExtra(AlarmReceiver.EXTRA_TIMESTAMP, 0)
+        runBlocking(Dispatchers.IO) {
+            reminderDao.getAll().first().forEach {
+                Log.d(BootReceiver::class.simpleName, "Restarting alarm for Reminder(id=${it.id})")
 
-        val pendingIntent = AlarmReceiver.constructPendingIntent(
-            context,
-            id,
-            title,
-            text,
-            timestamp,
-        )
+                val timestamp = it.datetime.time
+                val pendingIntent = AlarmReceiver.constructPendingIntent(
+                    context,
+                    it.id,
+                    it.title,
+                    it.text,
+                    timestamp,
+                )
 
-        alarmManager.setAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            timestamp,
-            pendingIntent,
-        )
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    timestamp,
+                    pendingIntent,
+                )
+
+                Log.i(BootReceiver::class.simpleName, "Restarted alarm for Reminder(id=${it.id})")
+            }
+        }
+
+        Log.i(BootReceiver::class.simpleName, "Done restarting alarms")
     }
 }

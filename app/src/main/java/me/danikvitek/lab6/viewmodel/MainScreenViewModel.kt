@@ -2,6 +2,8 @@ package me.danikvitek.lab6.viewmodel
 
 import android.app.AlarmManager
 import android.app.Application
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +18,7 @@ import me.danikvitek.lab6.data.dao.ReminderDao
 import me.danikvitek.lab6.data.entity.Reminder
 import me.danikvitek.lab6.di.WithTransaction
 import me.danikvitek.lab6.receiver.AlarmReceiver
+import me.danikvitek.lab6.receiver.BootReceiver
 import javax.inject.Inject
 
 @HiltViewModel
@@ -54,6 +57,18 @@ class MainScreenViewModel @Inject constructor(
                 )
                 Log.i(MainScreenViewModel::class.simpleName, "Cancelled alarm for Reminder(id=$id)")
             }
+
+            if (reminderDao.hasReminders()) {
+                return@withTransaction
+            }
+
+            val bootReceiver = ComponentName(app, BootReceiver::class.java)
+            app.packageManager.setComponentEnabledSetting(
+                bootReceiver,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+            )
+            Log.i(MainScreenViewModel::class.simpleName, "Disabled BootReceiver")
         }
     }
 

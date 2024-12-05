@@ -22,4 +22,7 @@ interface ReminderDao {
 
     @Query("SELECT * FROM reminders ORDER BY id DESC LIMIT 1")
     suspend fun getLastAdded(): Reminder?
+
+    @Query("SELECT COUNT(*) > 0 FROM reminders")
+    suspend fun hasReminders(): Boolean
 }

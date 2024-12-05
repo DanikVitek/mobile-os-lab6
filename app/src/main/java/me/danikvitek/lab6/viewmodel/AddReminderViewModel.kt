@@ -24,9 +24,6 @@ class AddReminderViewModel @Inject constructor(
     private val reminderDao: ReminderDao,
     private val withTransaction: WithTransaction,
 ) : ViewModel() {
-
-//    private val workManager = WorkManager.getInstance(app)
-
     private val alarmManager = app.getSystemService(AlarmManager::class.java)
 
     fun addReminder(title: String, text: String, datetime: Date): Flow<Long> {
@@ -56,27 +53,9 @@ class AddReminderViewModel @Inject constructor(
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                     PackageManager.DONT_KILL_APP,
                 )
+                Log.i(AddReminderViewModel::class.simpleName, "Enabled BootReceiver")
 
                 send(id)
-
-//                workManager.enqueueUniqueWork(
-//                    "reminder:$id",
-//                    ExistingWorkPolicy.REPLACE,
-//                    OneTimeWorkRequestBuilder<ReminderWorker>()
-//                        .setInputData(
-//                            workDataOf(
-//                                ReminderWorker.PARAM_ID to id,
-//                                ReminderWorker.PARAM_TITLE to title,
-//                                ReminderWorker.PARAM_TEXT to text,
-//                                ReminderWorker.PARAM_TIMESTAMP to datetime.time,
-//                            )
-//                        )
-//                        .setInitialDelay(
-//                            datetime.time - System.currentTimeMillis(),
-//                            TimeUnit.MILLISECONDS,
-//                        )
-//                        .build()
-//                )
             }
         }.flowOn(Dispatchers.IO)
     }

@@ -47,8 +47,12 @@ class AlarmReceiver : BroadcastReceiver() {
             .setWhen(timestamp)
             .setShowWhen(true)
             .setContentTitle(title)
-            .setContentText(text)
-            .setStyle(Notification.BigTextStyle().bigText(text))
+            .run {
+                if (text.isNotBlank()) this
+                    .setContentText(text)
+                    .setStyle(Notification.BigTextStyle().bigText(text))
+                else this
+            }
             .setContentIntent(viewNotificationPendingIntent)
             .setAutoCancel(true)
             .build()
